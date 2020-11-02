@@ -1,8 +1,8 @@
 let densitySlider
 let smoothnessSlider
 let mandlebrotSet
-let density = 8
-let smoothness = 5
+let density = 5
+let smoothness = 20
 
 let buton1X = 1030
 let buton1Y = 300
@@ -18,8 +18,10 @@ let smoothnessStep = 0
 let zoomX = -500
 let zoomY = -500
 
-let zoomOnClick = true
+let zoomOnClick = false
 let drawn = true
+
+let s = "For optimal zoom, bring details to 5 and smoothness to 7.\n\nFor esthetic zoom, bring details to 10 and smoothness around 20."
 
 function setup()
 {
@@ -28,8 +30,8 @@ function setup()
 	noStroke();
 	fill(255);
 	rect(1000,0,300,1000);
-	densitySlider = createSlider(1,10,8,1);
-	smoothnessSlider = createSlider(7,1000,7,1);
+	densitySlider = createSlider(1,10,5,1);
+	smoothnessSlider = createSlider(7,100,7,1);
 	densitySlider.position(1025,80);
 	smoothnessSlider.position(1025,160);
 	mandlebrotSet = new MandlebrotSet();
@@ -50,6 +52,7 @@ function draw()
 		text("            Smoothness : " + smoothnessSlider.value() + "\n(smoother processing = slower)",1010,130);
 		text("Generate",1070,321);
 		text("Zoom on click",1070,381);
+		text(s,1010,500,280,400);
 		smoothness = smoothnessSlider.value();
 		density = densitySlider.value();
 		fill(0,140,140)
@@ -93,31 +96,13 @@ function draw()
 		strokeWeight((11-density)/2)
 		for(let i=0+((int)(mandlebrotSet.length*(smoothnessStep)/smoothness));i<((int)(mandlebrotSet.length*(smoothnessStep+1)/smoothness));i++)
 		{
-			/*if(mandlebrotSet.colorSet[i]<128)
-			{
-				stroke(0,2*mandlebrotSet.colorSet[i],0);
-			}
-			else if(mandlebrotSet.colorSet[i]<256)
-			{
-				stroke((mandlebrotSet.colorSet[i]*2)%256,255-(mandlebrotSet.colorSet[i]*2)%256,0);
-			}
-			else if(mandlebrotSet.colorSet[i]<384)
-			{
-				stroke(255-(2*mandlebrotSet.colorSet[i])%256,0,(mandlebrotSet.colorSet[i]*2)%256);
-			}
-			
-			else
-			{
-				stroke((mandlebrotSet.colorSet[i]/3)%256,(mandlebrotSet.colorSet[i]/3)%256,(mandlebrotSet.colorSet[i]/3)%256);
-			}
-			*/
 			if(mandlebrotSet.colorSet[i]==0)
 			{
 				stroke(0);
 			}
 			else
 			{
-			stroke((mandlebrotSet.colorSet[i]*4)%256,(mandlebrotSet.colorSet[i]*7)%256,(mandlebrotSet.colorSet[i]*1)%256);
+			stroke((mandlebrotSet.colorSet[i]*2)%256,(mandlebrotSet.colorSet[i]*5)%256,(mandlebrotSet.colorSet[i]*7)%256);
 			}
 
 			point(mandlebrotSet.Xset[i],mandlebrotSet.Yset[i]);
