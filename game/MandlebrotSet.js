@@ -23,7 +23,7 @@ class MandlebrotSet
 		this.calculated = false
 	}
 
-	calculate(xmin,ymin,size,density,smoothness,smoothnessStep)
+	calculate(xmin,ymin,size,density,smoothness,smoothnessStep,iterations)
 	{
 		let x,y,a,b,preva,prevb
 		for(let i=xmin+size*(smoothnessStep)/smoothness;i<xmin+size*(smoothnessStep+1)/smoothness;i+=density*size/2000)
@@ -49,7 +49,7 @@ class MandlebrotSet
 					this.Xset.push(x)
 					this.Yset.push(y)
 					this.colorSet.push(0);
-					for(let k=0;k<256;k++)
+					for(let k=0;k<iterations;k++)
 					{
 						preva=a
 						prevb=b
@@ -59,20 +59,6 @@ class MandlebrotSet
 						if(modul(a,b)>=2)
 						[
 							this.colorSet[this.length]=4*k
-						]
-					}
-					if(this.colorSet[this.length]==1020)
-					{
-						for(let k=0;k<150;k++)
-						{
-							preva=a
-							prevb=b
-							a=preva*preva-prevb*prevb+x
-							b=2*preva*prevb+y
-						}
-						if(modul(a,b)>=2)
-						[
-							this.colorSet[this.length]=0
 						]
 					}
 					this.length++
