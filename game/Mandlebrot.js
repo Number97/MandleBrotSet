@@ -16,6 +16,7 @@ let butonSize = 30
 
 let xmin = -2
 let size = 4
+let color = 1
 let ymin = -2
 let smoothnessStep = 0
 
@@ -27,7 +28,9 @@ let unzoomOnClick = false
 let drawn = true
 
 let zooming = false
-let zoomsLeft = 36
+let zoomsLeft = 35
+
+let calculating = false
 
 let s = "For optimal zoom, bring details to 5 and smoothness to 7.\n\nFor esthetic zoom, bring details to 10 and smoothness around 20."
 
@@ -46,11 +49,48 @@ function setup()
 	iterationsSlider.position(1025,940);
 	mandlebrotSet = new MandlebrotSet();
 	mandlebrotSet.start();
+	alex();
+}
+
+function alex() {
+	a=random(50)
+	b=random(50)
+	c=random(50)
+
 }
 
 function draw()
 {
-	if(mandlebrotSet.finished)
+	if(calculating)
+	{
+		if(zooming)
+		{
+			stroke(0,0,255)
+			strokeWeight(2)
+			textSize(36)
+			fill(0,0,255)
+			text("calculating",zoomX+25,zoomY+45)
+			textSize(12)
+			strokeWeight(5)
+			noFill()
+			rect(zoomX,zoomY,400,400)
+		}
+		else
+		{
+			stroke(255,140,0)
+			strokeWeight(2)
+			textSize(36)
+			fill(255,140,0)
+			text("calculating",415,95)
+			textSize(12)
+			strokeWeight(5)
+			noFill()
+			rect(400,50,200,100)
+		}
+		
+		calculating=false;
+	}
+	else if(mandlebrotSet.finished)
 	{
 		noStroke();
 		fill(255);
@@ -99,13 +139,15 @@ function draw()
 		smoothnessStep++;
 		if(zooming)
 		{
-			stroke(0,0,255)
-			strokeWeight(5)
-			noFill()
-			rect(zoomX,zoomY,400,400)
 			noStroke()
-			fill(0,0,255,40)
+			fill(0,0,255,70)
 			rect(zoomX+400*(smoothnessStep-1)/smoothness,zoomY,400/smoothness,400)
+		}
+		else
+		{
+			noStroke()
+			fill(0,0,255,70)
+			rect(400+200*(smoothnessStep-1)/smoothness,50,200/smoothness,100)
 		}
 		
 		if(smoothnessStep==smoothness)
@@ -113,7 +155,10 @@ function draw()
 			smoothnessStep=0;
 			mandlebrotSet.calculated=true;
 			mandlebrotSet.map(xmin,ymin,size);
-			background(0);
+			if(density<10)
+			{
+				background(0);
+			}
 			noStroke();
 			fill(255);
 			rect(1000,0,300,1000);
@@ -131,7 +176,18 @@ function draw()
 			}
 			else
 			{
-			stroke((mandlebrotSet.colorSet[i]*2)%256,(mandlebrotSet.colorSet[i]*5)%256,(mandlebrotSet.colorSet[i]*7)%256);
+				stroke((mandlebrotSet.colorSet[i]*2)%256,(mandlebrotSet.colorSet[i]*5)%256,(mandlebrotSet.colorSet[i]*7)%256);
+				//stroke((mandlebrotSet.colorSet[i]/(36-zoomsLeft))%256,(mandlebrotSet.colorSet[i]/(36-zoomsLeft))%256,(mandlebrotSet.colorSet[i])/(36-zoomsLeft)%256);
+				//stroke((mandlebrotSet.colorSet[i]*a)%256,(mandlebrotSet.colorSet[i]*b)%256,(mandlebrotSet.colorSet[i]*c)%256);
+				/*if((mandlebrotSet.colorSet[i])%30>15)
+				{
+					stroke(0);
+				}
+				else
+				{
+					stroke(255);
+				}*/
+				//stroke((mandlebrotSet.colorSet[i]*color)%256,(mandlebrotSet.colorSet[i]*color)%256,(mandlebrotSet.colorSet[i]*color)%256);
 			}
 
 			point(mandlebrotSet.Xset[i],mandlebrotSet.Yset[i]);
@@ -151,6 +207,7 @@ function mousePressed()
     {
         if((mouseX >=  buton1X ) && (mouseX <= buton1X + butonSize ) && (mouseY >= buton1Y ) && (mouseY <= buton1Y + butonSize ))
         {
+			calculating=true;
 			noStroke();
 			fill(255);
 			rect(1000,0,300,1000);
@@ -204,9 +261,16 @@ function mousePressed()
         {
 			if((zoomOnClick)&&(zoomsLeft>0))
 			{
+				alex();
+				calculating=true;
 				zoomX=mouseX-200;
 				zoomY=mouseY-200;
+
 				let newSize = size * 0.4;
+
+				color = color * 0.9
+
+
 				let newXmin = map(mouseX-200,0,1000,xmin,xmin+size);
 				let newYmin = map(mouseY-200,0,1000,ymin,ymin+size);
 
@@ -225,6 +289,7 @@ function mousePressed()
 			}
 			else if((unzoomOnClick)&&(size<4))
 			{
+				calculating=true;
 				zoomsLeft++;
 				let newSize = size * 2.5;
 				let newXmin = map(mouseX-1250,0,1000,xmin,xmin+size);
