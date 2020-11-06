@@ -280,24 +280,6 @@ function draw()
 				mandlebrotSet.start(iterations);
 				zoomStep++;
 			}
-			else if(zoomStep<zoomNumbers+3)
-			{	
-				densitySlider.value(10)
-				density=10
-				iterationsSlider.value(256)
-				iterations=272
-				smoothnessSlider.value(25)
-				smoothness=25
-				calculating=true;
-				noStroke();
-				fill(255);
-				rect(1000,0,300,1000);
-				fill(220);
-				rect(1300,0,300,1000);
-				mandlebrotSet = new MandlebrotSet();
-				mandlebrotSet.start(iterations);
-				zoomStep++;
-			}
 			else if(zoomStep<zoomNumbers+4)
 			{	
 				densitySlider.value(10)
