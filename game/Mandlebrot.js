@@ -280,7 +280,7 @@ function draw()
 				mandlebrotSet.start(iterations);
 				zoomStep++;
 			}
-			else if(zoomStep<zoomNumbers+4)
+			else if(zoomStep<zoomNumbers+3)
 			{	
 				densitySlider.value(10)
 				density=10
