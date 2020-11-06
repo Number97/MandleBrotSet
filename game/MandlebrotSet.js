@@ -4,6 +4,15 @@ function modul(x,y)
 	return m
 }
 
+class Point
+{
+	constructor(_x,_y)
+	{
+		this.x=_x
+		this.y=_y
+	}
+}
+
 class MandlebrotSet
 {
 	constructor()
@@ -11,16 +20,31 @@ class MandlebrotSet
 		this.Xset = []
 		this.Yset = []
 		this.colorSet = []
+		this.set = []
 		this.finished = true
 		this.calculated = true
 		this.length = 0
 
 	}
 
-	start()
+	augment(k)
+	{
+
+	}
+
+	reduce(k)
+	{
+
+	}
+
+	start(i)
 	{
 		this.finished = false
 		this.calculated = false
+		for(let j = 0 ; j < i ; j++ )
+		{
+			this.set.push([]);
+		}
 	}
 
 	calculate(xmin,ymin,size,density,smoothness,smoothnessStep,iterations)
