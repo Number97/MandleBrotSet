@@ -91,7 +91,7 @@ class CoolColor
 	}
 }
 
-let s = "For optimal zoom, bring details to 5 and smoothness to 7.\n\nFor esthetic zoom, bring details to 10 and smoothness around 20."
+let s = "For optimal zoom, bring details to 5 and smoothness to 7.\n\nFor esthetic zoom, bring details to 10 and smoothness around iterations value."
 
 function setup()
 {
@@ -211,9 +211,9 @@ function draw()
 		text("Generate",1070,271);
 		text("Zoom on click",1100,371,190,50);
 		text("Generate cool place",1060,631,190,50);
-		text("Go to cool place",1060,666,190,50);
+		text("Demo: zooming to a cool place",1060,666,190,50);
 		text("Unzoom on click",1100,431,190,50);
-		text(s,1010,700,280,400);
+		text(s,1010,800,280,400);
 		smoothness = smoothnessSlider.value();
 		density = densitySlider.value();
 		iterations = iterationsSlider.value();
