@@ -114,7 +114,7 @@ function setup()
 	coolColors.push(new CoolColor(7.9,9.3,5.6,183))
 	coolColors.push(new CoolColor(3,9.5,8.5,150))
 	coolColors.push(new CoolColor(10,10,10,255))
-	coolColors.push(new CoolColor(9,3.4,1,220))
+	coolColors.push(new CoolColor(9.1,9,10,220))
 	createCanvas(1600,1000);
 	background(0);
 	noStroke();
