@@ -107,7 +107,7 @@ function setup()
 	coolPlaces.push(new CoolPlace(-1.404231402206542,-0.0032717542931279524,0.006553600000000019,8,500))
 	coolColors.push(new CoolColor(4,4,4.4,255))
 	coolColors.push(new CoolColor(4,3.4,6.4,200))
-	coolColors.push(new CoolColor(8,1.6,1.4,255)) //for the demo zoom
+	coolColors.push(new CoolColor(8,1.4,1.6,255)) //for the demo zoom
 	coolColors.push(new CoolColor(6,1.2,1,255))
 	coolColors.push(new CoolColor(1.1,1,1,210))
 	coolColors.push(new CoolColor(10,9.5,9.1,255))
