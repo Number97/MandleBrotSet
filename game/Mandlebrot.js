@@ -137,9 +137,9 @@ function setup()
 	currentA = 220
 
 	
-	rSlider = createSlider(0,10,1.1,0.1);
-	gSlider = createSlider(0,10,1,0.1);
-	bSlider = createSlider(0,10,1,0.1);
+	rSlider = createSlider(0,10,3,0.1);
+	gSlider = createSlider(0,10,0.6,0.1);
+	bSlider = createSlider(0,10,5.7,0.1);
 	aSlider = createSlider(1,255,255,1);
 
 	rSlider.position(1325,380)
@@ -213,7 +213,7 @@ function draw()
 		text("Generate cool place",1060,631,190,50);
 		text("Demo: zooming to a cool place",1060,666,190,50);
 		text("Unzoom on click",1100,431,190,50);
-		text(s,1010,800,280,400);
+		text(s,1010,750,280,400);
 		smoothness = smoothnessSlider.value();
 		density = densitySlider.value();
 		iterations = iterationsSlider.value();
