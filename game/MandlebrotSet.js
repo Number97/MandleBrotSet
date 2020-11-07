@@ -17,39 +17,31 @@ class MandlebrotSet
 {
 	constructor()
 	{
-		this.Xset = []
-		this.Yset = []
-		this.colorSet = []
 		this.set = []
 		this.finished = true
 		this.calculated = true
-		this.length = 0
-
-	}
-
-	augment(k)
-	{
-
-	}
-
-	reduce(k)
-	{
-
+		this.lengthh = []
+		this.iterations = 0
+		this.notZero = []
+		this.notZeroLength = 0
 	}
 
 	start(i)
 	{
+		this.iterations = i;
 		this.finished = false
 		this.calculated = false
 		for(let j = 0 ; j < i ; j++ )
 		{
-			this.set.push([]);
+			this.set[j] = [];
+			this.lengthh.push(0);
 		}
 	}
 
-	calculate(xmin,ymin,size,density,smoothness,smoothnessStep,iterations)
+	calculate(xmin,ymin,size,density,smoothness,smoothnessStep)
 	{
 		let x,y,a,b,preva,prevb
+		
 		for(let i=xmin+size*(smoothnessStep)/smoothness;i<xmin+size*(smoothnessStep+1)/smoothness;i+=density*size/2000)
 		{
 			for(let j=ymin;j<ymin+size;j+=density*size/2000)
@@ -61,6 +53,7 @@ class MandlebrotSet
 				prevb=y
 				b=y
 
+
 				for(let k=0;k<5;k++)
 				{
 					preva=a
@@ -70,10 +63,7 @@ class MandlebrotSet
 				}
 				if(modul(a,b)<2)
 				{
-					this.Xset.push(x)
-					this.Yset.push(y)
-					this.colorSet.push(0);
-					for(let k=0;k<iterations;k++)
+					for(let k=0;k<this.iterations;k++)
 					{
 						preva=a
 						prevb=b
@@ -81,12 +71,25 @@ class MandlebrotSet
 						b=2*preva*prevb+y
 
 						if(modul(a,b)>=2)
-						[
-							this.colorSet[this.length]=4*k
-						]
+						{
+							this.set[k].push( new Point(x,y) )
+							this.lengthh[k]=this.lengthh[k]+1
+							k=this.iterations;
+						}
 					}
-					this.length++
 				}
+			}
+		}
+	}
+
+	check()
+	{
+		for(let j = 0 ; j < this.iterations ; j++ )
+		{
+			if(this.lengthh[j]>0)
+			{
+				this.notZeroLength++;
+				this.notZero.push(this.lengthh[j]);
 			}
 		}
 	}
@@ -94,12 +97,15 @@ class MandlebrotSet
 	map(xmin,ymin,size)
 	{
 		let x,y;
-		for(let i=0;i<this.length;i++)
+		for(let i=0;i<this.iterations;i++)
 		{
-			x=map(this.Xset[i],xmin,xmin+size,0,1000);
-			y=map(this.Yset[i],ymin,ymin+size,0,1000);
-			this.Xset[i]=x;
-			this.Yset[i]=y;
+			for(let j=0;j<this.lengthh[i];j++)
+			{
+				x=map(this.set[i][j].x,xmin,xmin+size,0,1000);
+				y=map(this.set[i][j].y,ymin,ymin+size,0,1000);
+				this.set[i][j].x=x;
+				this.set[i][j].y=y;
+			}
 		}
 	}
 }
