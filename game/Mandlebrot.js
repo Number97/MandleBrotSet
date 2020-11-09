@@ -13,6 +13,8 @@ let currentG = 0
 let currentB = 0
 let currentA = 0
 
+let pMax
+
 let currentCoolPlace
 
 let buton1X = 1030
@@ -35,6 +37,9 @@ let smoothnessStep = 0
 
 let calculstep = 0
 
+let printStep = 0
+let printing = false
+
 let zoomX = -500
 let zoomY = -500
 
@@ -47,22 +52,13 @@ let zoomsLeft = 35
 
 let calculating = false
 
-let mode = 0
-
 let zoomPoints = []
 let zoomStep = 120
 let zoomNumbers = 15
 
-/*
+let regenerating = false
 
-modes:
-
-0 = colors
-1 = black and white
-2 = only black or white
-3 = 
-
-*/
+let mode
 
 let coolPlaces = []
 
@@ -70,13 +66,16 @@ let coolColors = []
 
 class CoolPlace
 {
-	constructor(_x,_y,_size,_mode,_i)
+	constructor(_x,_y,_size,_mode,_color,_i,_zooms,_calculIterations)
 	{
 		this.x=_x
 		this.y=_y
 		this.size=_size
 		this.mode=_mode
 		this.i=_i
+		this.color=_color
+		this.zooms=_zooms
+		this.calculIterations=_calculIterations
 	}
 }
 
@@ -95,16 +94,19 @@ let s = "For optimal zoom, bring details to 5 and smoothness to 7.\n\nFor esthet
 
 function setup()
 {
-	currentCoolPlace=0
-	coolPlaces.push(new CoolPlace(-0.16124085247999992,-1.03744370688,0.0010485760000000005,0,568))
-	coolPlaces.push(new CoolPlace(0.25781618881168233,-0.0011205330639871653,1.844674407370958e-12,9,1111))
-	coolPlaces.push(new CoolPlace(0.36638068346016883,-0.5915573428030522,4.398046511104005e-8,2,830))
-	coolPlaces.push(new CoolPlace(-1.0052738945797062,-0.3146896947686257,6.871947673600008e-7,1,700))
-	coolPlaces.push(new CoolPlace(0.13505284580277893,-0.6717781913979461,7.036874417766409e-9,4,1667))
-	coolPlaces.push(new CoolPlace(-1.7481097420799998,-0.012578979839999994,0.0010485760000000005,5,500))
-	coolPlaces.push(new CoolPlace(0.26239566355040456,-0.0022263611703680773,4.398046511104005e-8,6,700))
-	coolPlaces.push(new CoolPlace(0.3523967733124301,-0.5823114083676978,0.000004294967296000004,7,450))
-	coolPlaces.push(new CoolPlace(-1.404231402206542,-0.0032717542931279524,0.006553600000000019,8,500))
+	coolPlaces.push(new CoolPlace(-0.16124085247999992,-1.03744370688,0.0010485760000000005,1,0,568,26,514))
+	coolPlaces.push(new CoolPlace(0.25781618881168233,-0.0011205330639871653,1.844674407370958e-12,2,9,1111,4,411))
+	coolPlaces.push(new CoolPlace(0.36638068346016883,-0.5915573428030522,4.398046511104005e-8,1,2,830,15,701))
+	coolPlaces.push(new CoolPlace(0.35068558767982577,-0.5821468557108024,4.5035996273705024e-10,1,11,1140,10,585))
+	coolPlaces.push(new CoolPlace(0.13505284580277893,-0.6717781913979461,7.036874417766409e-9,1,4,1667,13,1067))
+	coolPlaces.push(new CoolPlace(-1.7481097420799998,-0.012578979839999994,0.0010485760000000005,1,5,500,26,486))
+	coolPlaces.push(new CoolPlace(0.26239566355040456,-0.0022263611703680773,4.398046511104005e-8,1,6,700,15,477))
+	coolPlaces.push(new CoolPlace(0.3523967733124301,-0.5823114083676978,0.000004294967296000004,1,7,450,20,284))
+	coolPlaces.push(new CoolPlace(0.257816188813093,-0.0011205330637472839,1.1805916207174135e-13,1,9,1111,1,324))
+	coolPlaces.push(new CoolPlace(-1.404231402206542,-0.0032717542931279524,0.006553600000000019,1,8,500,28,470))
+	coolPlaces.push(new CoolPlace(0.35068557912678644,-0.5821468638569697,1.759218604441602e-8,1,10,1000,14,620))
+	coolPlaces.push(new CoolPlace(-1.0052738945797062,-0.3146896947686257,6.871947673600008e-7,1,1,700,18,522))
+
 	coolColors.push(new CoolColor(4,4,4.4,255))
 	coolColors.push(new CoolColor(4,3.4,6.4,200))
 	coolColors.push(new CoolColor(8,1.4,1.6,255)) //for the demo zoom
@@ -115,31 +117,63 @@ function setup()
 	coolColors.push(new CoolColor(3,9.5,8.5,150))
 	coolColors.push(new CoolColor(10,10,10,255))
 	coolColors.push(new CoolColor(9.1,9,10,220))
+	coolColors.push(new CoolColor(4.15,4,4.57,220))
+	coolColors.push(new CoolColor(3.69,3.8,0.12,220))
+
+
+	/*
+	//print(xmin + "," + ymin + "," + size + "," + mode + ",," + iterations + "," + zoomsLeft)
+	*/
+
 	createCanvas(1600,1000);
 	background(0);
 	noStroke();
 	fill(255);
-	rect(1000,0,300,1000);
-	fill(220);
-	rect(1300,0,300,1000);
+	rect(1000,0,600,1000);
+	
+	mode=createSelect()
+	
+	mode.position(1050,200)
+	mode.option(1)
+	mode.option(2)
+	mode.selected(1)
+
+	currentCoolPlace=createSelect()
+	
+	currentCoolPlace.position(1190,625)
+	currentCoolPlace.option(1)
+	currentCoolPlace.option(2)
+	currentCoolPlace.option(3)
+	currentCoolPlace.option(4)
+	currentCoolPlace.option(5)
+	currentCoolPlace.option(6)
+	currentCoolPlace.option(7)
+	currentCoolPlace.option(8)
+	currentCoolPlace.option(9)
+	currentCoolPlace.option(10)
+	currentCoolPlace.option(11)
+	currentCoolPlace.option(12)
+	currentCoolPlace.selected(1)
+
 	densitySlider = createSlider(1,10,5,1);
 	smoothnessSlider = createSlider(7,3000,7,1);
 	iterationsSlider = createSlider(256,3000,256,1);
 	densitySlider.position(1025,80);
 	smoothnessSlider.position(1025,160);
 	iterationsSlider.position(1025,940);
-	mandlebrotSet = new MandlebrotSet();
+
+	mandlebrotSet = new MandlebrotSet(mode.selected());
 	mandlebrotSet.start(iterations);
 
-	currentR = 12
-	currentG = 2.4
-	currentB = 2
+	currentR = 3
+	currentG = 0.6
+	currentB = 5.7
 	currentA = 220
 
 	
-	rSlider = createSlider(0,10,3,0.1);
-	gSlider = createSlider(0,10,0.6,0.1);
-	bSlider = createSlider(0,10,5.7,0.1);
+	rSlider = createSlider(0,10,3,0.01);
+	gSlider = createSlider(0,10,0.6,0.01);
+	bSlider = createSlider(0,10,5.7,0.01);
 	aSlider = createSlider(1,255,255,1);
 
 	rSlider.position(1325,380)
@@ -195,13 +229,27 @@ function draw()
 		
 		calculating=false;
 	}
+	else if(printing)
+	{
+		stroke(0,140,255)
+		strokeWeight(2)
+		textSize(36)
+		fill(0,140,255)
+		text("Printing",1365,95)
+		textSize(12)
+		strokeWeight(5)
+		noFill()
+		rect(1350,50,200,100)
+		
+		printing=false;
+	}
 	else if(mandlebrotSet.finished)
 	{
+
+
 		noStroke();
 		fill(255);
-		rect(1000,0,300,1000);
-		fill(220);
-		rect(1300,0,300,1000);
+		rect(1000,0,600,1000);
 		fill(0);
 		strokeWeight(255);
 		text("                Details : " + densitySlider.value() + "\n      (more details = slower)",1010,50);
@@ -255,6 +303,7 @@ function draw()
 			text("OFF",1040,470);
 		}
 		rect(buton3X,buton3Y,butonSize,butonSize);
+		
 	}
 	else if(!mandlebrotSet.calculated)
 	{
@@ -269,42 +318,67 @@ function draw()
 		else
 		{
 			noStroke()
-			fill(0,0,255,70)
+			fill(255,140,0,70)
 			rect(1350+200*(calculstep-1)/20,50,10,100)
+			fill(255)
+			rect(1400,160,100,100)
+			fill(255,140,0)
+			text(floor(((calculstep)/20)*100) + " %",1430,170)
 		}
 		
 		if(calculstep==20)
 		{
 			calculstep=0;
-			//mandlebrotSet.check();
+			mandlebrotSet.check();
 			mandlebrotSet.calculated=true;
+			printing=true
 			mandlebrotSet.map(xmin,ymin,size);
-			background(0);
+			
+			if(!regenerating){ 
+				background(0)
+			}
+			regenerating=false
 			noStroke();
 			fill(255);
-			rect(1000,0,300,1000);
+			rect(1000,0,600,1000);
 			zooming=false
 		}
 	}
 	else
 	{
-		strokeWeight((11-density)/2)
-
-		for(let i=0+((int)(iterations*(smoothnessStep)/smoothness));(i<((int)(iterations*(smoothnessStep+1)/smoothness)));i++)
+		if(smoothness>20)
 		{
-			//stroke((i*2)%256,(i*3)%256,(i*5)%256)
+			pMax=20
+		}
+		else
+		{
+			pMax=smoothness
+		}
+		strokeWeight((11-density)/2)
+		for(let i=mandlebrotSet.minimumIterations+((int)((iterations-mandlebrotSet.minimumIterations)*(smoothnessStep)/smoothness));(i<mandlebrotSet.minimumIterations+((int)((iterations-mandlebrotSet.minimumIterations)*(smoothnessStep+1)/smoothness)));i++)
+		{
 			stroke((currentA/2)*cos(3.14*i*currentR/currentA)+127.5,(currentA/2)*cos(3.14*i*currentG/currentA)+127.5,(currentA/2)*cos(3.14*i*currentB/currentA)+127.5)
-			
 			for(let j=0;j<mandlebrotSet.lengthh[i];j++)
 			{
 				point(mandlebrotSet.set[i][j].x,mandlebrotSet.set[i][j].y)
 			}
 		}
 		smoothnessStep++;
+		
+		printStep++;
+		noStroke()
+		fill(0,140,255,70)
+		rect(1350+200*(printStep-1)/smoothness,50,200/smoothness,100)
+
+		fill(255)
+		rect(1400,160,100,100)
+		fill(0,0,255)
+		text(floor(((printStep)/smoothness)*100) + " %",1430,170)
 		if(smoothnessStep==smoothness)
 		{
 			smoothnessStep=0;
 			mandlebrotSet.finished=true;
+			printStep=0
 			if(zoomStep<zoomNumbers-1)
 			{
 				zoom(zoomPoints[zoomStep].x,zoomPoints[zoomStep].y);
@@ -334,11 +408,12 @@ function mousePressed()
 			calculating=true;
 			noStroke();
 			fill(255);
-			rect(1000,0,300,1000);
-			fill(220);
-			rect(1300,0,300,1000);
-			mandlebrotSet = new MandlebrotSet();
-            mandlebrotSet.start(iterations);
+			rect(1000,0,600,1000);
+			
+			
+			mandlebrotSet = new MandlebrotSet(mode.selected());
+			mandlebrotSet.start(iterations);
+			if((density==10)&&(currentA==255)){regenerating=true}
 		}
 
         if((mouseX >=  buton2X ) && (mouseX <= buton2X + butonSize ) && (mouseY >= buton2Y ) && (mouseY <= buton2Y + butonSize ))
@@ -385,19 +460,19 @@ function mousePressed()
 
 		if((mouseX >=  buton4X ) && (mouseX <= buton4X + butonSize ) && (mouseY >= buton4Y ) && (mouseY <= buton4Y + butonSize ))
         {
-			let p=currentCoolPlace
+			let p=currentCoolPlace.selected()-1
 
-			currentCoolPlace++
-			if(currentCoolPlace==9){currentCoolPlace=0}
+			zoomsLeft = coolPlaces[p].zooms
+			mode.selected(coolPlaces[p].mode)
 
 			xmin=coolPlaces[p].x
 			ymin=coolPlaces[p].y
 			size=coolPlaces[p].size
 
-			currentR = coolColors[coolPlaces[p].mode].r;
-			currentG = coolColors[coolPlaces[p].mode].g;
-			currentB = coolColors[coolPlaces[p].mode].b;
-			currentA = coolColors[coolPlaces[p].mode].a;
+			currentR = coolColors[coolPlaces[p].color].r;
+			currentG = coolColors[coolPlaces[p].color].g;
+			currentB = coolColors[coolPlaces[p].color].b;
+			currentA = coolColors[coolPlaces[p].color].a;
 
 			rSlider.value(currentR)
 			gSlider.value(currentG)
@@ -408,15 +483,15 @@ function mousePressed()
 			density=10
 			iterationsSlider.value(coolPlaces[p].i)
 			iterations=coolPlaces[p].i
-			smoothnessSlider.value(coolPlaces[p].i)
-			smoothness=coolPlaces[p].i
+			smoothnessSlider.value(coolPlaces[p].calculIterations)
+			smoothness=coolPlaces[p].calculIterations
 			calculating=true;
 			noStroke();
 			fill(255);
-			rect(1000,0,300,1000);
-			fill(220);
-			rect(1300,0,300,1000);
-			mandlebrotSet = new MandlebrotSet();
+			rect(1000,0,600,1000);
+			
+			
+			mandlebrotSet = new MandlebrotSet(mode.selected());
 			mandlebrotSet.start(iterations);
 		}
 
@@ -428,10 +503,10 @@ function mousePressed()
 			calculating=true;
 			noStroke();
 			fill(255);
-			rect(1000,0,300,1000);
-			fill(220);
-			rect(1300,0,300,1000);
-			mandlebrotSet = new MandlebrotSet();
+			rect(1000,0,600,1000);
+			
+			
+			mandlebrotSet = new MandlebrotSet(mode.selected());
 			mandlebrotSet.start(iterations);
 			
 			densitySlider.value(5)
@@ -478,10 +553,10 @@ function mousePressed()
 
 				noStroke();
 				fill(255);
-				rect(1000,0,300,1000);
-				fill(220);
-				rect(1300,0,300,1000);
-				mandlebrotSet = new MandlebrotSet();
+				rect(1000,0,600,1000);
+				
+				
+				mandlebrotSet = new MandlebrotSet(mode.selected());
 				mandlebrotSet.start(iterations)
 				zoomsLeft--;
 			}
@@ -499,8 +574,8 @@ function mousePressed()
 
 				noStroke();
 				fill(255);
-				rect(1000,0,300,1000);
-				mandlebrotSet = new MandlebrotSet();
+				rect(1000,0,600,1000);
+				mandlebrotSet = new MandlebrotSet(mode.selected());
 				mandlebrotSet.start(iterations)
 			}
 			
@@ -542,10 +617,45 @@ function zoom(xZoom,yZoom)
 
 	noStroke();
 	fill(255);
-	rect(1000,0,300,1000);
-	fill(220);
-	rect(1300,0,300,1000);
-	mandlebrotSet = new MandlebrotSet();
+	rect(1000,0,600,1000);
+	
+	
+	mandlebrotSet = new MandlebrotSet(mode.selected());
 	mandlebrotSet.start(iterations)
 	zoomsLeft--;
 }
+
+
+/*
+function draw() {
+  background(0);
+  red=redSlider.value()
+  noStroke()
+  text("r: "+red,30,150)
+  green=greenSlider.value()
+  noStroke()
+  text("g: "+green,230,150)
+  blue=blueSlider.value()
+  noStroke()
+  text("b: "+blue,430,150)
+  amplitude=amplitudeSlider.value()
+  noStroke()
+  text("a: "+amplitude,630,150)
+  calculate(red,green,blue,amplitude);
+}
+function calculate(r,g,b,a)
+{
+  for(let i=0;i<1000;i++)
+    {
+        stroke((a/2)*sin(3.14*i*r/a)+127.5,(a/2)*sin(3.14*i*g/a)+127.5,(a/2)*sin(3.14*i*b/a)+127.5)
+      	line(i,1,i,100);
+    }
+}
+
+function changeBG()
+{
+  redSlider.value(random(0.5,4))
+  greenSlider.value(random(0.5,4))
+  blueSlider.value(random(0.5,4))
+}*/
+
