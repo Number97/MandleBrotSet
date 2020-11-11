@@ -24,13 +24,14 @@ class MandlebrotSet
 		this.calculated = true
 		this.lengthh = []
 		this.iterations = 0
-		this.notZero = []
-		this.notZeroLength = 0
+		this.groups = []
+		this.groupsLength = []
 		this.mode = _mode
 		this.minimumIterations = 0
 		this.totalLength = 0
 		this.fullSet = []
-		this.fullLength = 0
+		this.underLength = 0
+		this.underLengthTotal = 0
 	}
 
 	start(i)
@@ -235,7 +236,6 @@ class MandlebrotSet
 			for(let j=0;j<this.lengthh[i];j++)
 			{
 				this.fullSet.push(new Pointy(this.set[i][j].x,this.set[i][j].y,i))
-				this.fullLength++
 			}
 		}
 	}

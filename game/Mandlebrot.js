@@ -24,6 +24,7 @@ let unzoomOnClickButton
 let adjustForZooming
 let adjustForBeauty
 let seeColorsButton
+let recolor
 ////////
 
 let pMax
@@ -39,6 +40,9 @@ let size = 4
 let color = 1
 let ymin = -2
 let smoothnessStep = 0
+let adaptiveStep = 0
+
+let adaptiveSmoothness = 0
 
 let calculstep = 0
 
@@ -160,6 +164,7 @@ function setup()
 	loadingScreen=createSelect()
 	
 	loadingScreen.position(-1050,400)
+	loadingScreen.option('Adaptive')
 	loadingScreen.option('Color progressive')
 	loadingScreen.option('Pixel progressive')
 	loadingScreen.selected('Color progressive')
@@ -196,6 +201,7 @@ function setup()
 
 	rangeSlider = createSlider(125,2000,125,5);
 	rangeSlider.size(500)
+	rangeSlider.position(-600)
 
 	currentCoolPlace=createSelect()
 	
@@ -481,6 +487,14 @@ function draw()
 			mandlebrotSet.map(xmin,ymin,size);
 			mandlebrotSet.pixelProgressiveTransform();
 			mandlebrotSet.calculated=true;
+
+			if(loadingScreen.selected()=='Adaptive')
+			{
+				smoothness=(mandlebrotSet.fullSet[floor(mandlebrotSet.totalLength*0.5)].i-mandlebrotSet.minimumIterations)
+				adaptiveSmoothness=(mandlebrotSet.fullSet[floor(mandlebrotSet.totalLength*0.5)].i-mandlebrotSet.minimumIterations)
+				smoothnessSlider.value(smoothness)
+			}
+			
 			printing=true
 			
 			if(!regenerating){ 
@@ -514,6 +528,17 @@ function draw()
 					point(mandlebrotSet.set[i][j].x,mandlebrotSet.set[i][j].y)
 				}
 			}
+			smoothnessStep++;
+		
+			printStep++;
+			noStroke()
+			fill(0,140,255,70)
+			rect(1310+200*(printStep-1)/smoothness,30,200/smoothness,100)
+	
+			fill(255)
+			rect(1360,140,100,100)
+			fill(0,0,255)
+			text(floor(((printStep)/smoothness)*100) + " %",1390,150)
 		}
 		else if(loadingScreen.selected()=='Pixel progressive')
 		{
@@ -522,21 +547,62 @@ function draw()
 				stroke((currentA/2)*cos(3.14*mandlebrotSet.fullSet[i].i*currentR/currentA)+127.5,(currentA/2)*cos(3.14*mandlebrotSet.fullSet[i].i*currentG/currentA)+127.5,(currentA/2)*cos(3.14*mandlebrotSet.fullSet[i].i*currentB/currentA)+127.5)
 				point(mandlebrotSet.fullSet[i].x,mandlebrotSet.fullSet[i].y)
 			}
-		}
-		smoothnessStep++;
+			smoothnessStep++;
 		
-		printStep++;
-		noStroke()
-		fill(0,140,255,70)
-		rect(1310+200*(printStep-1)/smoothness,30,200/smoothness,100)
+			printStep++;
+			noStroke()
+			fill(0,140,255,70)
+			rect(1310+200*(printStep-1)/smoothness,30,200/smoothness,100)
+	
+			fill(255)
+			rect(1360,140,100,100)
+			fill(0,0,255)
+			text(floor(((printStep)/smoothness)*100) + " %",1390,150)
+		}
+		else if(loadingScreen.selected()=='Adaptive')
+		{
+			if(adaptiveStep<=smoothness)
+			{
+				let i=(mandlebrotSet.minimumIterations+adaptiveStep)
+				stroke((currentA/2)*cos(3.14*i*currentR/currentA)+127.5,(currentA/2)*cos(3.14*i*currentG/currentA)+127.5,(currentA/2)*cos(3.14*i*currentB/currentA)+127.5)
+				for(let j=0;j<mandlebrotSet.lengthh[i];j++)
+				{
+					point(mandlebrotSet.set[i][j].x,mandlebrotSet.set[i][j].y)
+				}
+				adaptiveStep++
+			}
+			else
+			{
+				//print(smoothness,smoothnessStep,floor(mandlebrotSet.totalLength/2,)
+				//background(0)
+				for(let i=floor(mandlebrotSet.totalLength/2)+((int)((mandlebrotSet.totalLength/2)*(smoothnessStep)/(smoothness)));(i<floor(mandlebrotSet.totalLength/2)+((int)((mandlebrotSet.totalLength/2)*(smoothnessStep+1)/(smoothness))));i++)
+				{
+					stroke((currentA/2)*cos(3.14*mandlebrotSet.fullSet[i].i*currentR/currentA)+127.5,(currentA/2)*cos(3.14*mandlebrotSet.fullSet[i].i*currentG/currentA)+127.5,(currentA/2)*cos(3.14*mandlebrotSet.fullSet[i].i*currentB/currentA)+127.5)
+					point(mandlebrotSet.fullSet[i].x,mandlebrotSet.fullSet[i].y)
+				}
+				smoothnessStep++;
+				/*
+				for(let i=floor(mandlebrotSet.totalLength/2)+((int)((mandlebrotSet.totalLength)*((smoothnessStep)/smoothness)-1/2));(i<((int)((mandlebrotSet.totalLength)*((smoothnessStep+1)/smoothness)-1/2)));i++)
+				{
+					stroke((currentA/2)*cos(3.14*mandlebrotSet.fullSet[i].i*currentR/currentA)+127.5,(currentA/2)*cos(3.14*mandlebrotSet.fullSet[i].i*currentG/currentA)+127.5,(currentA/2)*cos(3.14*mandlebrotSet.fullSet[i].i*currentB/currentA)+127.5)
+					point(mandlebrotSet.fullSet[i].x,mandlebrotSet.fullSet[i].y)
+				}*/
+			}
+			
+			printStep++;
+			noStroke()
+			fill(0,140,255,70)
+			rect(1310+200*(printStep-1)/(smoothness*2),30,200/(smoothness*2),100)
 
-		fill(255)
-		rect(1360,140,100,100)
-		fill(0,0,255)
-		text(floor(((printStep)/smoothness)*100) + " %",1390,150)
+			fill(255)
+			rect(1360,140,100,100)
+			fill(0,0,255)
+			text(floor(((printStep)/(smoothness*2))*100) + " %",1390,150)
+		}
 		if(smoothnessStep==smoothness)
 		{
 			smoothnessStep=0;
+			adaptiveStep=0
 			mandlebrotSet.finished=true;
 			printStep=0
 			if(zoomStep<zoomNumbers-1)
@@ -693,6 +759,12 @@ function moreOptions()
 			seeColorsButton.size(120,70)
 			seeColorsButton.style('background-color','red')
 			seeColorsButton.mousePressed(seeColorsPressed)
+			
+			recolor = createButton('Redraw')
+			recolor.position(1430,525)
+			recolor.size(120,50)
+			recolor.style('background-color','lightblue')
+			recolor.mousePressed(recolorPressed)
 
 			rSlider.position(1050,560)
 			gSlider.position(1050,615)
@@ -858,6 +930,26 @@ function colorPresetChanged()
 	gSlider.value(currentG)
 	bSlider.value(currentB)
 	aSlider.value(currentA)
+}
+
+function recolorPressed()
+{
+	if(mandlebrotSet.finished)
+	{
+		printing=true;
+		if((density!=10)||(currentA!=255)){background(0)}
+
+		noStroke();
+		fill(255);
+		rect(1000,0,600,1000);
+
+		mandlebrotSet.finished=false;
+		if(loadingScreen.selected()=='Adaptive')
+		{
+			smoothness=(mandlebrotSet.fullSet[floor(mandlebrotSet.totalLength/2)].i-mandlebrotSet.minimumIterations)
+			smoothnessSlider.value(smoothness)
+		}
+	}
 }
 
 function mousePressed()
