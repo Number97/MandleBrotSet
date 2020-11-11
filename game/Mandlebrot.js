@@ -167,7 +167,7 @@ function setup()
 	loadingScreen.option('Adaptive')
 	loadingScreen.option('Color progressive')
 	loadingScreen.option('Pixel progressive')
-	loadingScreen.selected('Color progressive')
+	loadingScreen.selected('Adaptive')
 
 	colorPreset=createSelect()
 	colorPreset.option(1)
@@ -490,8 +490,8 @@ function draw()
 
 			if(loadingScreen.selected()=='Adaptive')
 			{
-				smoothness=(mandlebrotSet.fullSet[floor(mandlebrotSet.totalLength*0.5)].i-mandlebrotSet.minimumIterations)
-				adaptiveSmoothness=(mandlebrotSet.fullSet[floor(mandlebrotSet.totalLength*0.5)].i-mandlebrotSet.minimumIterations)
+				adaptiveSmoothness=(mandlebrotSet.fullSet[floor(mandlebrotSet.totalLength*0.8)].i-mandlebrotSet.minimumIterations)
+				smoothness=floor(adaptiveSmoothness/4)
 				smoothnessSlider.value(smoothness)
 			}
 			
@@ -561,7 +561,7 @@ function draw()
 		}
 		else if(loadingScreen.selected()=='Adaptive')
 		{
-			if(adaptiveStep<=smoothness)
+			if(adaptiveStep<=adaptiveSmoothness)
 			{
 				let i=(mandlebrotSet.minimumIterations+adaptiveStep)
 				stroke((currentA/2)*cos(3.14*i*currentR/currentA)+127.5,(currentA/2)*cos(3.14*i*currentG/currentA)+127.5,(currentA/2)*cos(3.14*i*currentB/currentA)+127.5)
@@ -575,7 +575,7 @@ function draw()
 			{
 				//print(smoothness,smoothnessStep,floor(mandlebrotSet.totalLength/2,)
 				//background(0)
-				for(let i=floor(mandlebrotSet.totalLength/2)+((int)((mandlebrotSet.totalLength/2)*(smoothnessStep)/(smoothness)));(i<floor(mandlebrotSet.totalLength/2)+((int)((mandlebrotSet.totalLength/2)*(smoothnessStep+1)/(smoothness))));i++)
+				for(let i=floor(mandlebrotSet.totalLength*0.8)+((int)((mandlebrotSet.totalLength*0.2)*(smoothnessStep)/(smoothness)));(i<floor(mandlebrotSet.totalLength*0.8)+((int)((mandlebrotSet.totalLength*0.2)*(smoothnessStep+1)/(smoothness))));i++)
 				{
 					stroke((currentA/2)*cos(3.14*mandlebrotSet.fullSet[i].i*currentR/currentA)+127.5,(currentA/2)*cos(3.14*mandlebrotSet.fullSet[i].i*currentG/currentA)+127.5,(currentA/2)*cos(3.14*mandlebrotSet.fullSet[i].i*currentB/currentA)+127.5)
 					point(mandlebrotSet.fullSet[i].x,mandlebrotSet.fullSet[i].y)
@@ -592,12 +592,12 @@ function draw()
 			printStep++;
 			noStroke()
 			fill(0,140,255,70)
-			rect(1310+200*(printStep-1)/(smoothness*2),30,200/(smoothness*2),100)
+			rect(1310+200*(printStep-1)/(smoothness+adaptiveSmoothness),30,200/(smoothness+adaptiveSmoothness),100)
 
 			fill(255)
 			rect(1360,140,100,100)
 			fill(0,0,255)
-			text(floor(((printStep)/(smoothness*2))*100) + " %",1390,150)
+			text(floor(((printStep)/(smoothness+adaptiveSmoothness))*100) + " %",1390,150)
 		}
 		if(smoothnessStep==smoothness)
 		{
@@ -946,7 +946,8 @@ function recolorPressed()
 		mandlebrotSet.finished=false;
 		if(loadingScreen.selected()=='Adaptive')
 		{
-			smoothness=(mandlebrotSet.fullSet[floor(mandlebrotSet.totalLength/2)].i-mandlebrotSet.minimumIterations)
+			adaptiveSmoothness=(mandlebrotSet.fullSet[floor(mandlebrotSet.totalLength*0.8)].i-mandlebrotSet.minimumIterations)
+			smoothness=floor(adaptiveSmoothness/4)
 			smoothnessSlider.value(smoothness)
 		}
 	}
