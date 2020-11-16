@@ -1,3 +1,10 @@
+p5.disableFriendlyErrors=true
+
+
+
+
+
+
 let densitySlider
 let smoothnessSlider
 let iterationsSlider
@@ -25,7 +32,17 @@ let adjustForZooming
 let adjustForBeauty
 let seeColorsButton
 let recolor
+let randomColors
+let help
+let resetButton
+let changeMaxIterations
+let infoButton
 ////////
+
+let info=false
+
+////max iterations input
+let maxIInput
 
 let pMax
 
@@ -65,7 +82,7 @@ let calculating = false
 
 let zoomPoints = []
 let zoomStep = 120
-let zoomNumbers = 15
+let zoomNumbers = 33
 
 let regenerating = false
 
@@ -83,6 +100,8 @@ let buttonsLevel = 0
 let coolPlaces = []
 
 let coolColors = []
+
+let totalSizeSlider
 
 class CoolPlace
 {
@@ -114,40 +133,69 @@ let s = "For optimal zoom, bring details to 5 and smoothness to 7.\n\nFor esthet
 
 function setup()
 {
+	resetButton = createButton('Reset')
+	resetButton.position(-1250,430)
+	resetButton.size(100,50)
+	resetButton.mousePressed(resetButtonPressed)
+	resetButton.style('background-color','purple')
+	//pixelDensity(1)
+
+	infoButton = createButton("Toggle info")
+	infoButton.position(20,1025)
+	infoButton.size(200,50)
+	infoButton.mousePressed(toggleInfo)
+
+	totalSizeSlider = createSlider(0.1,1,1,0.1)
+	totalSizeSlider.position(-1050,450)
+
 	coolPlaces.push(new CoolPlace(-0.16124085247999992,-1.03744370688,0.0010485760000000005,1,0,568,26,514))
 	coolPlaces.push(new CoolPlace(0.25781618881168233,-0.0011205330639871653,1.844674407370958e-12,2,9,1111,4,411))
 	coolPlaces.push(new CoolPlace(0.36638068346016883,-0.5915573428030522,4.398046511104005e-8,1,2,830,15,701))
 	coolPlaces.push(new CoolPlace(0.35068558767982577,-0.5821468557108024,4.5035996273705024e-10,1,11,1140,10,585))
 	coolPlaces.push(new CoolPlace(0.13505284580277893,-0.6717781913979461,7.036874417766409e-9,1,4,1667,13,1067))
+
 	coolPlaces.push(new CoolPlace(-1.7481097420799998,-0.012578979839999994,0.0010485760000000005,1,5,500,26,486))
+	coolPlaces.push(new CoolPlace(0.3583576364837247,-0.6463177872150849,7.036874417766409e-9,1,12,5300,13,735))
 	coolPlaces.push(new CoolPlace(0.26239566355040456,-0.0022263611703680773,4.398046511104005e-8,1,6,700,15,477))
 	coolPlaces.push(new CoolPlace(0.3523967733124301,-0.5823114083676978,0.000004294967296000004,1,7,450,20,284))
 	coolPlaces.push(new CoolPlace(0.257816188813093,-0.0011205330637472839,1.1805916207174135e-13,1,9,1111,1,324))
+
 	coolPlaces.push(new CoolPlace(-1.404231402206542,-0.0032717542931279524,0.006553600000000019,1,8,500,28,470))
 	coolPlaces.push(new CoolPlace(0.35068557912678644,-0.5821468638569697,1.759218604441602e-8,1,10,1000,14,620))
 	coolPlaces.push(new CoolPlace(-1.0052738945797062,-0.3146896947686257,6.871947673600008e-7,1,1,700,18,522))
 	coolPlaces.push(new CoolPlace(-1.748591645137059,-0.012632690674303488,1.0995116277760012e-7,1,11,1224,16,1000))
+	coolPlaces.push(new CoolPlace(-1.7498021827265853,5.4909098323827284e-8,7.378697629483833e-13,1,5,2284,3,724))
+
 
 	coolColors.push(new CoolColor(4,4,4.4,255))
 	coolColors.push(new CoolColor(4,3.4,6.4,200))
 	coolColors.push(new CoolColor(8,1.4,1.6,255)) //for the demo zoom
 	coolColors.push(new CoolColor(6,1.2,1,255))
 	coolColors.push(new CoolColor(1.1,1,1,210))
+
 	coolColors.push(new CoolColor(10,9.5,9.1,255))
 	coolColors.push(new CoolColor(7.9,9.3,5.6,183))
 	coolColors.push(new CoolColor(3,9.5,8.5,150))
 	coolColors.push(new CoolColor(10,10,10,255))
 	coolColors.push(new CoolColor(9.1,9,10,220))
+
 	coolColors.push(new CoolColor(4.15,4,4.57,220))
 	coolColors.push(new CoolColor(3.69,3.8,0.12,220))
+	coolColors.push(new CoolColor(2.42,5.97,4,255))
 
 
 	/*
 	//print(xmin + "," + ymin + "," + size + "," + mode + ",," + iterations + "," + zoomsLeft)
 	*/
 
-	createCanvas(1600,1000);
+	createCanvas(1600,1300);
 	background(0);
+	stroke(150,0,255);
+	strokeWeight(4);
+	noFill()
+	rect(500-1000*totalSizeSlider.value()/2,500-1000*totalSizeSlider.value()/2,1000*totalSizeSlider.value(),1000*totalSizeSlider.value())
+
+
 	noStroke();
 	fill(255);
 	rect(1000,0,600,1000);
@@ -159,6 +207,7 @@ function setup()
 	mode.option(2)
 	mode.option(3)
 	mode.option(4)
+	mode.option(5)
 	mode.selected(1)
 	
 	loadingScreen=createSelect()
@@ -183,7 +232,8 @@ function setup()
 	colorPreset.option(11)
 	colorPreset.option(12)
 	colorPreset.option(13)
-	colorPreset.selected(13)
+	colorPreset.option(14)
+	colorPreset.selected(14)
 	colorPreset.changed(colorPresetChanged)
 	colorPreset.position(-333,-234)
 
@@ -220,9 +270,11 @@ function setup()
 	currentCoolPlace.option(11)
 	currentCoolPlace.option(12)
 	currentCoolPlace.option(13)
+	currentCoolPlace.option(14)
+	currentCoolPlace.option(15)
 	currentCoolPlace.selected(1)
 
-	mandlebrotSet = new MandlebrotSet(mode.selected());
+	mandlebrotSet = new MandlebrotSet(mode.selected(),1);
 	mandlebrotSet.start(iterations);
 
 	currentR = 3
@@ -251,6 +303,25 @@ function setup()
 	zoomPoints.push(new Point(514,517));
 	zoomPoints.push(new Point(493,505));
 	zoomPoints.push(new Point(646,470));
+	
+	zoomPoints.push(new Point(670,296));
+	zoomPoints.push(new Point(756,323));
+	zoomPoints.push(new Point(554,500));
+	zoomPoints.push(new Point(508,503));
+	zoomPoints.push(new Point(503,478));
+	zoomPoints.push(new Point(524,534));
+	zoomPoints.push(new Point(529,503));
+	zoomPoints.push(new Point(525,444));
+	zoomPoints.push(new Point(547,451));
+	zoomPoints.push(new Point(305,502));
+	zoomPoints.push(new Point(496,521));
+	zoomPoints.push(new Point(410,457));
+	zoomPoints.push(new Point(506,489));
+	zoomPoints.push(new Point(659,48));
+	zoomPoints.push(new Point(497,494));
+	zoomPoints.push(new Point(507,501));
+	zoomPoints.push(new Point(500,500));
+	zoomPoints.push(new Point(500,500));
 
 	generateButton = createButton('Generate cool place number:')
 	generateButton.position(1010,10)
@@ -277,13 +348,13 @@ function draw()
 		{
 			stroke(0,0,255)
 			strokeWeight(2)
-			textSize(36)
+			textSize(36*totalSizeSlider.value())
 			fill(0,0,255)
-			text("calculating",zoomX+25,zoomY+45)
+			text("calculating",zoomX+25*totalSizeSlider.value(),zoomY+45*totalSizeSlider.value())
 			textSize(12)
 			strokeWeight(5)
 			noFill()
-			rect(zoomX,zoomY,400,400)
+			rect(zoomX,zoomY,400*totalSizeSlider.value(),400*totalSizeSlider.value())
 		}
 		else
 		{
@@ -316,14 +387,43 @@ function draw()
 	}
 	else if(mandlebrotSet.finished)
 	{
+		if(mode.selected()==5)
+		{
+			loadingScreen.attribute('disabled',true)
+		}
+		else
+		{
+			loadingScreen.removeAttribute('disabled')
+		}
 		////////////////////////////////////
+
 		noStroke();
+		fill(0)
+		rect(0,1000,1600,300)
 		fill(255);
 		rect(1000,0,600,1000);
-		fill(0)
+		
+		if(info)
+		{
+			fill(255,200,200)
+			text('"Generate cool place number" loads a specific scene. Select the one you want to generate,then press the button.\n\nPress "Demo: zooming to a cool place" to preview a zooming demo.\n\nPress "More options" to activate more settings. There are 3 levels of settings',25,1100,200,500)
+			fill(200,255,200)
+			text('Press on "Zoom on click" or "Unzoom on click" to toggle between modes.\n\nZooming is finite, but different depending on your computer. So the numbers of zooms left might not be exact.\n\nGenerating modes:\n1: Normal\n2: Interesting bugged type\n3: Mandlebrot with z^3\n4: Mandlebrot with z^4\n5: Instant (also brings instant printing)\n\nPress "Regenerate to regenerate the same scene with the new settings.',250,1025,205,500)
+			fill(200,200,255)
+			text('Printing styles define the way the scene is printed.\n\nChange the details to change the quality of the result, and the smoothness to increase or adjust the smoothness or processing/printing the scene. Increasing either option increase the time it takes to generate a scene.\n\nPress "Adjust for zooming" or "Adjust for beauty" to automatically adjust the settings for whatever you want.\n\nPress "Reset" to go back to the original scene.',475,1025,205,500)
+			fill(255,200,255)
+			text('Iterations should be increased to augment the precision of the Mandlebrot Set. \n\nThis also lowers the processing/printing speed.\n\nChange the max iterations on the right if 7000 is not enough.\n\nChange the total size of the result window to lower it and thus increase the processing/printing speed.\n\nSmoothness is auto-adjusted with the Adaptive printing style.',700,1025,205,500)
+			fill(255,255,200)
+			text('Press "Toggle Colors Visualisation" to see a live visualisation of the r/g/b/a combination that is selected.\n\nChange the Red Green Blue and the Amplitude (r/g/b/a) to change the colors of the scene.\n\nPress "Random" to generate a random combination or select one of our presets.\n\nYou can increase the range of the color palette.\n\nRecolor with a color amplitude of 255 and a density of 10 to recolor over the previous coloring.',925,1025,205,500)
+			fill(200,255,255)
+			text('The "Redraw" button only re-prints the already generated scene. (changing the r/g/b/a, the smoothness or the printing style)\n\nPressing the "Regenerate" button regenerates the scene as well as it re-prints it. (so changing whatever setting is taken into account)\n\nThe RGB coloring system is used, with the amount of Red (r), the Amplitude (a),the max number of iterations (i) for each point, put into the following formula (same for Green and Blue):\n\n(a/2)*cos(PI*i*r/a)+127.5',1150,1025,205,500)
+			fill(255)
+			text('Simply, just press adjust for zoom to zoom to a cool place, then adjust for beauty and regenerate. Change the colors, then regenerate. Adaptive si globally the best printing style.\n\n\nDev comments/bugs:\n\n- 6th mode with smooth coloring can be added.\n- GPU processing can be added.\n- When changing the total size, particles sizes do not yet adjust.\n- Estimate of iterations to calculate depending on zoom can be implemented. (maybe remove the last -5% on totalLength?)',1375,1025,200,500)
+		}
+		
 
-
-		///////////////////////////////////////
+		if(buttonsLevel<2){text('Press    { More Options }    \nto activate more settings.',1320,80)}
+		//////////////////////////////////////
 		if(buttonsLevel>0)
 		{
 			strokeWeight(2)
@@ -344,9 +444,12 @@ function draw()
 			line(1597,350,1005,350)
 
 			noStroke();
+			fill(0)
+			text("Size : " + totalSizeSlider.value(),1005,450);
+			text("Max iterations:",1460,425)
 			text("You can't zoom infinitely, due to computer limitations.\nZooms left: " + zoomsLeft,1290,225);
 			text("Generating mode:",1300,190);
-			text("Loading style:",1450,190);
+			text("Printing style:",1448,190);
 			text("                Details : " + densitySlider.value() + "\n      (more details = slower)",1267,303);
 			text("            Smoothness : " + smoothnessSlider.value() + "\n(smoother processing = slower)",1425,303);
 			text("Click to toggle zooming modes",1044,195)
@@ -369,7 +472,7 @@ function draw()
 				textSize(10)
 				text("ADJUSTED",1038,345)
 				textSize(12)
-				if((density!=5)||(smoothness!=7))
+				if((density!=1)||(mode.selected()!=5))
 				{
 					adjustedForZooming=false
 					adjustForZooming.position(1010,290)
@@ -379,7 +482,7 @@ function draw()
 			}
 			else
 			{
-				if((density==5)&&(smoothness==7))
+				if((density==1)&&(mode.selected()==5))
 				{
 					adjustedForZooming=true
 					adjustForZooming.position(1015,295)
@@ -393,22 +496,51 @@ function draw()
 				textSize(10)
 				text("ADJUSTED",1170,345)
 				textSize(12)
-				if((density!=10)||(smoothness!=(iterations-mandlebrotSet.minimumIterations)))
+
+				if(iterations<500)
 				{
-					adjustedForBeauty=false
-					adjustForBeauty.position(1140,290)
-					adjustForBeauty.size(110,50)
-					adjustForBeauty.style('background-color','red')
+					if((density!=10)||(mode.selected()==5)||(loadingScreen.selected()!='Color progressive'))
+					{
+						adjustedForBeauty=false
+						adjustForBeauty.position(1140,290)
+						adjustForBeauty.size(110,50)
+						adjustForBeauty.style('background-color','red')
+					}
+				}
+				else
+				{
+					if((density!=10)||(mode.selected()==5)||(loadingScreen.selected()!='Adaptive'))
+					{
+						adjustedForBeauty=false
+						adjustForBeauty.position(1140,290)
+						adjustForBeauty.size(110,50)
+						adjustForBeauty.style('background-color','red')
+					}
 				}
 			}
 			else
 			{
-				if((density==10)&&(smoothness==(iterations-mandlebrotSet.minimumIterations)))
+				if(iterations<500)
 				{
-					adjustedForBeauty=true
-					adjustForBeauty.position(1145,295)
-					adjustForBeauty.size(100,40)
-					adjustForBeauty.style('background-color','green')
+					if((density==10)&&(mode.selected()!=5)&&(loadingScreen.selected()=='Color progressive'))
+					{
+						adjustedForBeauty=true
+						adjustForBeauty.position(1145,295)
+						adjustForBeauty.size(100,40)
+						adjustForBeauty.style('background-color','green')
+						mode.selected(1)
+					}
+				}
+				else
+				{
+					if((density==10)&&(mode.selected()!=5)&&(loadingScreen.selected()=='Adaptive'))
+					{
+						adjustedForBeauty=true
+						adjustForBeauty.position(1145,295)
+						adjustForBeauty.size(100,40)
+						adjustForBeauty.style('background-color','green')
+						mode.selected(1)
+					}
 				}
 			}
 			text("Iterations : " + iterationsSlider.value() + "      (increase iterations for deeper zooming but slower loading)",1100,390);
@@ -461,50 +593,76 @@ function draw()
 	}
 	else if(!mandlebrotSet.calculated)
 	{
-		mandlebrotSet.calculate(xmin,ymin,size,11-density,20,calculstep,iterations);
-		calculstep++;
-		if(zooming)
+		if(mode.selected()==5)
 		{
-			noStroke()
-			fill(0,0,255,70)
-			rect(zoomX+400*(calculstep-1)/20,zoomY,20,400)
-		}
-		else
-		{
-			noStroke()
-			fill(255,140,0,70)
-			rect(1310+200*(calculstep-1)/20,30,10,100)
-			fill(255)
-			rect(1360,140,100,100)
-			fill(255,140,0)
-			text(floor(((calculstep)/20)*100) + " %",1390,150)
-		}
-		
-		if(calculstep==20)
-		{
-			calculstep=0;
+			mandlebrotSet.calculate(xmin,ymin,size,11-density);
 			mandlebrotSet.check();
 			mandlebrotSet.map(xmin,ymin,size);
 			mandlebrotSet.pixelProgressiveTransform();
 			mandlebrotSet.calculated=true;
-
-			if(loadingScreen.selected()=='Adaptive')
-			{
-				adaptiveSmoothness=(mandlebrotSet.fullSet[floor(mandlebrotSet.totalLength*0.8)].i-mandlebrotSet.minimumIterations)
-				smoothness=floor(adaptiveSmoothness/4)
-				smoothnessSlider.value(smoothness)
-			}
 			
 			printing=true
 			
-			if(!regenerating){ 
-				background(0)
-			}
-			regenerating=false
 			noStroke();
 			fill(255);
 			rect(1000,0,600,1000);
 			zooming=false
+		}
+		else
+		{
+			mandlebrotSet.calculate(xmin,ymin,size,11-density,20,calculstep);
+			calculstep++;
+			if(zooming)
+			{
+				noStroke()
+				fill(0,0,255,70)
+				rect(zoomX+400*(calculstep-1)/20*totalSizeSlider.value(),zoomY,20*totalSizeSlider.value(),400*totalSizeSlider.value())
+			}
+			else
+			{
+				noStroke()
+				fill(255,140,0,70)
+				rect(1310+200*(calculstep-1)/20,30,10,100)
+				fill(255)
+				rect(1360,140,100,100)
+				fill(255,140,0)
+				text(floor(((calculstep)/20)*100) + " %",1390,150)
+			}
+			
+			if(calculstep==20)
+			{
+				calculstep=0;
+				mandlebrotSet.check();
+				mandlebrotSet.map(xmin,ymin,size);
+				mandlebrotSet.pixelProgressiveTransform();
+				if(mode.selected()==6)
+				{
+					mandlebrotSet.progressiveColorsCalculation()
+				}
+				mandlebrotSet.calculated=true;
+
+				if(loadingScreen.selected()=='Adaptive')
+				{
+					adaptiveSmoothness=(mandlebrotSet.fullSet[floor(mandlebrotSet.totalLength*0.8)].i-mandlebrotSet.minimumIterations)
+					smoothness=floor(adaptiveSmoothness/4)
+					smoothnessSlider.value(smoothness)
+				}
+				
+				printing=true
+				
+				if(!regenerating){ 
+					background(0)
+					stroke(150,0,255);
+					strokeWeight(4);
+					noFill()
+					rect(500-1000*totalSizeSlider.value()/2,500-1000*totalSizeSlider.value()/2,1000*totalSizeSlider.value(),1000*totalSizeSlider.value())
+				}
+				regenerating=false
+				noStroke();
+				fill(255);
+				rect(1000,0,600,1000);
+				zooming=false
+			}
 		}
 	}
 	else
@@ -517,8 +675,47 @@ function draw()
 		{
 			pMax=smoothness
 		}
-		strokeWeight((11-density)/2)
-		if(loadingScreen.selected()=='Color progressive')
+		strokeWeight(((11-density)/2))
+		if(mode.selected()==5)
+		{
+			if(!regenerating){ 
+				background(0)
+				stroke(150,0,255);
+				strokeWeight(4);
+				noFill()
+				rect(500-1000*totalSizeSlider.value()/2,500-1000*totalSizeSlider.value()/2,1000*totalSizeSlider.value(),1000*totalSizeSlider.value())
+			}
+			regenerating=false
+			for(let i=0;i<(mandlebrotSet.totalLength);i++)
+			{
+				stroke((currentA/2)*cos(3.14*mandlebrotSet.fullSet[i].i*currentR/currentA)+127.5,(currentA/2)*cos(3.14*mandlebrotSet.fullSet[i].i*currentG/currentA)+127.5,(currentA/2)*cos(3.14*mandlebrotSet.fullSet[i].i*currentB/currentA)+127.5)
+				point(mandlebrotSet.fullSet[i].x,mandlebrotSet.fullSet[i].y)
+			}
+			smoothnessStep=smoothness;
+		}
+		else if(mode.selected()==6)
+		{
+			for(let i=mandlebrotSet.minimumIterations+((int)((iterations-mandlebrotSet.minimumIterations)*(smoothnessStep)/smoothness));(i<mandlebrotSet.minimumIterations+((int)((iterations-mandlebrotSet.minimumIterations)*(smoothnessStep+1)/smoothness)));i++)
+			{
+				for(let j=0;j<mandlebrotSet.lengthh[i];j++)
+				{
+					stroke((currentA/2)*cos(3.14*mandlebrotSet.progressiveColorsSet[i][j]*currentR/currentA)+127.5,(currentA/2)*cos(3.14*mandlebrotSet.progressiveColorsSet[i][j]*currentG/currentA)+127.5,(currentA/2)*cos(3.14*mandlebrotSet.progressiveColorsSet[i][j]*currentB/currentA)+127.5)
+					point(mandlebrotSet.set[i][j].x,mandlebrotSet.set[i][j].y)
+				}
+			}
+			smoothnessStep++;
+		
+			printStep++;
+			noStroke()
+			fill(0,140,255,70)
+			rect(1310+200*(printStep-1)/smoothness,30,200/smoothness,100)
+	
+			fill(255)
+			rect(1360,140,100,100)
+			fill(0,0,255)
+			text(floor(((printStep)/smoothness)*100) + " %",1390,150)
+		}
+		else if(loadingScreen.selected()=='Color progressive')
 		{
 			for(let i=mandlebrotSet.minimumIterations+((int)((iterations-mandlebrotSet.minimumIterations)*(smoothnessStep)/smoothness));(i<mandlebrotSet.minimumIterations+((int)((iterations-mandlebrotSet.minimumIterations)*(smoothnessStep+1)/smoothness)));i++)
 			{
@@ -614,8 +811,9 @@ function draw()
 			{
 				densitySlider.value(10)
 				density=10
-				iterationsSlider.value(600)
-				iterations=600
+				mode.selected(1)
+				iterationsSlider.value(4000)
+				iterations=4000
 				smoothnessSlider.value(386)
 				smoothness=386
 				zoom(zoomPoints[zoomStep].x,zoomPoints[zoomStep].y);
@@ -624,6 +822,11 @@ function draw()
 			}
 		}
 	}
+}
+
+function toggleInfo()
+{
+	info=!info
 }
 
 function generateCoolPlace()
@@ -663,7 +866,7 @@ function generateCoolPlace()
 		rect(1000,0,600,1000);
 		
 		
-		mandlebrotSet = new MandlebrotSet(mode.selected());
+		mandlebrotSet = new MandlebrotSet(mode.selected(),totalSizeSlider.value());
 		mandlebrotSet.start(iterations);
 	}	
 }
@@ -681,13 +884,14 @@ function zoomToCoolPlace()
 		rect(1000,0,600,1000);
 		
 		
-		mandlebrotSet = new MandlebrotSet(mode.selected());
+		mandlebrotSet = new MandlebrotSet(mode.selected(),totalSizeSlider.value());
 		mandlebrotSet.start(iterations);
 		
 		densitySlider.value(5)
-		density=5
-		iterationsSlider.value(256)
-		iterations=256
+		density=1
+		mode.selected(5)
+		iterationsSlider.value(2000)
+		iterations=2000
 		smoothnessSlider.value(7)
 		smoothness=7
 		currentR = coolColors[2].r;
@@ -709,6 +913,11 @@ function moreOptions()
 	{
 		if(buttonsLevel==0)
 		{
+			resetButton.position(1250,430)
+
+			totalSizeSlider.position(1050,450)
+
+
 			densitySlider.position(1280,323);
 			smoothnessSlider.position(1440,323);
 			densitySlider.size(140);
@@ -746,6 +955,15 @@ function moreOptions()
 			adjustForBeauty.style('background-color','red')
 			adjustForBeauty.mousePressed(adjustForBeautyPressed)
 
+			changeMaxIterations = createButton('Change')
+			changeMaxIterations.position(1460,456)
+			changeMaxIterations.size(108,30)
+			changeMaxIterations.mousePressed(changeMaxIterationsPressed)
+
+			maxIInput = createInput(7000)
+			maxIInput.position(1460,430)
+			maxIInput.size(100,21)
+
 			mode.position(1400,175)
 
 			loadingScreen.position(1530,175)
@@ -759,6 +977,12 @@ function moreOptions()
 			seeColorsButton.size(120,70)
 			seeColorsButton.style('background-color','red')
 			seeColorsButton.mousePressed(seeColorsPressed)
+
+			randomColors = createButton('Random')
+			randomColors.position(1225,635)
+			randomColors.size(80,50)
+			randomColors.style('background-color','yellow')
+			randomColors.mousePressed(randomColorsPressed)
 			
 			recolor = createButton('Redraw')
 			recolor.position(1430,525)
@@ -789,7 +1013,7 @@ function regenerate()
 		fill(255);
 		rect(1000,0,600,1000);
 
-		mandlebrotSet = new MandlebrotSet(mode.selected());
+		mandlebrotSet = new MandlebrotSet(mode.selected(),totalSizeSlider.value());
 		mandlebrotSet.start(iterations);
 		if((density==10)&&(currentA==255)){regenerating=true}
 	}	
@@ -869,11 +1093,20 @@ function adjustForZoomingPressed()
 			adjustForZooming.size(100,40)
 			adjustForZooming.style('background-color','green')
 			
-			density=5
-			densitySlider.value(5)
+			density=1
+			densitySlider.value(1)
 			smoothness=7
 			smoothnessSlider.value(7)
+			mode.selected(5)
 		}
+	}
+}
+
+function changeMaxIterationsPressed()
+{
+	if(mandlebrotSet.finished)
+	{
+		iterationsSlider.elt.max=maxIInput.value()
 	}
 }
 
@@ -891,8 +1124,18 @@ function adjustForBeautyPressed()
 			
 			density=10
 			densitySlider.value(10)
+
+			if(iterations<500)
+			{
+				loadingScreen.selected('Color progressive')
+			}
+			else
+			{
+				loadingScreen.selected('Adaptive')
+			}
 			smoothness=iterations-mandlebrotSet.minimumIterations;
 			smoothnessSlider.value(smoothness)
+			mode.selected(1)
 		}
 	}
 }
@@ -919,7 +1162,6 @@ function seeColorsPressed()
 function colorPresetChanged()
 {
 	let c=colorPreset.selected()-1;
-	print(c)
 
 	currentR=coolColors[c].r
 	currentG=coolColors[c].g
@@ -937,7 +1179,13 @@ function recolorPressed()
 	if(mandlebrotSet.finished)
 	{
 		printing=true;
-		if((density!=10)||(currentA!=255)){background(0)}
+		if((density!=10)||(currentA!=255)){
+			background(0)
+			stroke(150,0,255);
+			strokeWeight(4);
+			noFill()
+			rect(500-1000*totalSizeSlider.value()/2,500-1000*totalSizeSlider.value()/2,1000*totalSizeSlider.value(),1000*totalSizeSlider.value())
+		}
 
 		noStroke();
 		fill(255);
@@ -953,26 +1201,39 @@ function recolorPressed()
 	}
 }
 
+function randomColorsPressed()
+{
+	currentR=random(0,10)
+	currentG=random(0,10)
+	currentB=random(0,10)
+	currentA=random(0,255)
+
+	rSlider.value(currentR)
+	gSlider.value(currentG)
+	bSlider.value(currentB)
+	aSlider.value(currentA)
+}
+
 function mousePressed()
 {
 	if(mandlebrotSet.finished)
 	{
-		if((mouseX >=  0 ) && (mouseX <= 1000 ) && (mouseY >= 0 ) && (mouseY <= 1000 ))
+		if((mouseX >=  0 ) && (mouseX <= 1000*totalSizeSlider.value()+500-1000*totalSizeSlider.value()/2 ) && (mouseY >= 0 ) && (mouseY <= 1000*totalSizeSlider.value()+500-1000*totalSizeSlider.value()/2 ))
         {
 			if((zoomOnClick)&&(zoomsLeft>0))
 			{
 				//print(mouseX,mouseY)
 				calculating=true;
-				zoomX=mouseX-200;
-				zoomY=mouseY-200;
+				zoomX=mouseX-200*totalSizeSlider.value();
+				zoomY=mouseY-200*totalSizeSlider.value();
 
 				let newSize = size * 0.4;
 
 				color = color * 0.9
 
 
-				let newXmin = map(mouseX-200,0,1000,xmin,xmin+size);
-				let newYmin = map(mouseY-200,0,1000,ymin,ymin+size);
+				let newXmin = map(mouseX-200*totalSizeSlider.value()-500+1000*totalSizeSlider.value()/2,0,1000*totalSizeSlider.value(),xmin,xmin+size);
+				let newYmin = map(mouseY-200*totalSizeSlider.value()-500+1000*totalSizeSlider.value()/2,0,1000*totalSizeSlider.value(),ymin,ymin+size);
 
 				zooming=true
 
@@ -985,7 +1246,7 @@ function mousePressed()
 				rect(1000,0,600,1000);
 				
 				
-				mandlebrotSet = new MandlebrotSet(mode.selected());
+				mandlebrotSet = new MandlebrotSet(mode.selected(),totalSizeSlider.value());
 				mandlebrotSet.start(iterations)
 				zoomsLeft--;
 			}
@@ -994,8 +1255,8 @@ function mousePressed()
 				calculating=true;
 				zoomsLeft++;
 				let newSize = size * 2.5;
-				let newXmin = map(mouseX-1250,0,1000,xmin,xmin+size);
-				let newYmin = map(mouseY-1250,0,1000,ymin,ymin+size);
+				let newXmin = map(mouseX-1250*totalSizeSlider.value()-500+1000*totalSizeSlider.value()/2,0,1000*totalSizeSlider.value(),xmin,xmin+size);
+				let newYmin = map(mouseY-1250*totalSizeSlider.value()-500+1000*totalSizeSlider.value()/2,0,1000*totalSizeSlider.value(),ymin,ymin+size);
 
 				size=newSize;
 				xmin=newXmin;
@@ -1004,7 +1265,7 @@ function mousePressed()
 				noStroke();
 				fill(255);
 				rect(1000,0,600,1000);
-				mandlebrotSet = new MandlebrotSet(mode.selected());
+				mandlebrotSet = new MandlebrotSet(mode.selected(),totalSizeSlider.value());
 				mandlebrotSet.start(iterations)
 			}
 		}
@@ -1015,11 +1276,11 @@ function keyPressed()
 {
 	if(key == 'q')
 	{
-		
+		loop()
 	}
 	if(key == 's')
 	{
-		print(mouseX,mouseY)
+		print(mouseX,mouseY,mouseX-200*totalSizeSlider.value()-500+1000*totalSizeSlider.value()/2,mouseY-200*totalSizeSlider.value()-500+1000*totalSizeSlider.value()/2)
 	}
 }
 
@@ -1048,9 +1309,51 @@ function zoom(xZoom,yZoom)
 	rect(1000,0,600,1000);
 	
 	
-	mandlebrotSet = new MandlebrotSet(mode.selected());
+	mandlebrotSet = new MandlebrotSet(mode.selected()),totalSizeSlider.value();
 	mandlebrotSet.start(iterations)
 	zoomsLeft--;
+}
+
+function resetButtonPressed()
+{
+	if(mandlebrotSet.finished)
+	{
+		let p=currentCoolPlace.selected()-1
+
+		zoomsLeft = coolPlaces[p].zooms
+		mode.selected(1)
+
+		xmin=-2
+		ymin=-2
+		size=4
+
+		colorPreset.selected(14)
+
+		currentR = coolColors[13].r;
+		currentG = coolColors[13].g;
+		currentB = coolColors[13].b;
+		currentA = coolColors[13].a;
+
+		rSlider.value(currentR)
+		gSlider.value(currentG)
+		bSlider.value(currentB)
+		aSlider.value(currentA)
+
+		densitySlider.value(5)
+		density=5
+		iterationsSlider.value(500)
+		iterations=500
+		smoothnessSlider.value(7)
+		smoothness=7
+		calculating=true;
+		noStroke();
+		fill(255);
+		rect(1000,0,600,1000);
+		
+		
+		mandlebrotSet = new MandlebrotSet(mode.selected(),totalSizeSlider.value());
+		mandlebrotSet.start(iterations);
+	}	
 }
 
 

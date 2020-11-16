@@ -17,7 +17,7 @@ class Pointy
 }
 class MandlebrotSet
 {
-	constructor(_mode)
+	constructor(_mode,_totalSize)
 	{
 		this.set = []
 		this.finished = true
@@ -32,6 +32,8 @@ class MandlebrotSet
 		this.fullSet = []
 		this.underLength = 0
 		this.underLengthTotal = 0
+		this.totalSize = _totalSize
+		this.progressiveColorsSet = []
 	}
 
 	start(i)
@@ -41,6 +43,7 @@ class MandlebrotSet
 		this.calculated = false
 		for(let j = 0 ; j < i ; j++ )
 		{
+			this.progressiveColorsSet[j] = []
 			this.set[j] = [];
 			this.lengthh.push(0);
 		}
@@ -51,9 +54,9 @@ class MandlebrotSet
 		let x,y,a,b,preva,prevb
 		if(this.mode==1)
 		{
-			for(let i=xmin+size*(smoothnessStep)/smoothness;i<xmin+size*(smoothnessStep+1)/smoothness;i+=density*size/2000)
+			for(let i=xmin+size*(smoothnessStep)/smoothness;i<xmin+size*(smoothnessStep+1)/smoothness;i+=density*size/(2000*this.totalSize))
 			{
-				for(let j=ymin;j<ymin+size;j+=density*size/2000)
+				for(let j=ymin;j<ymin+size;j+=density*size/(2000*this.totalSize))
 				{
 					x=i
 					y=j
@@ -93,9 +96,9 @@ class MandlebrotSet
 		}
 		else if(this.mode==2)
 		{
-			for(let i=xmin+size*(smoothnessStep)/smoothness;i<xmin+size*(smoothnessStep+1)/smoothness;i+=density*size/2000)
+			for(let i=xmin+size*(smoothnessStep)/smoothness;i<xmin+size*(smoothnessStep+1)/smoothness;i+=density*size/(2000*this.totalSize))
 			{
-				for(let j=ymin;j<ymin+size;j+=density*size/2000)
+				for(let j=ymin;j<ymin+size;j+=density*size/(2000*this.totalSize))
 				{
 					x=i
 					y=j
@@ -135,9 +138,9 @@ class MandlebrotSet
 		}
 		else if(this.mode==3)
 		{
-			for(let i=xmin+size*(smoothnessStep)/smoothness;i<xmin+size*(smoothnessStep+1)/smoothness;i+=density*size/2000)
+			for(let i=xmin+size*(smoothnessStep)/smoothness;i<xmin+size*(smoothnessStep+1)/smoothness;i+=density*size/(2000*this.totalSize))
 			{
-				for(let j=ymin;j<ymin+size;j+=density*size/2000)
+				for(let j=ymin;j<ymin+size;j+=density*size/(2000*this.totalSize))
 				{
 					x=i
 					y=j
@@ -177,9 +180,9 @@ class MandlebrotSet
 		}
 		else if(this.mode==4)
 		{
-			for(let i=xmin+size*(smoothnessStep)/smoothness;i<xmin+size*(smoothnessStep+1)/smoothness;i+=density*size/2000)
+			for(let i=xmin+size*(smoothnessStep)/smoothness;i<xmin+size*(smoothnessStep+1)/smoothness;i+=density*size/(2000*this.totalSize))
 			{
-				for(let j=ymin;j<ymin+size;j+=density*size/2000)
+				for(let j=ymin;j<ymin+size;j+=density*size/(2000*this.totalSize))
 				{
 					x=i
 					y=j
@@ -208,6 +211,91 @@ class MandlebrotSet
 							if((a*a+b*b)>=4)
 							{
 								this.set[k].push( new Point(x,y) )
+								this.lengthh[k]=this.lengthh[k]+1
+								this.totalLength++
+								k=this.iterations;
+							}
+						}
+					}
+				}
+			}
+		}
+		if(this.mode==5)
+		{
+			for(let i=xmin;i<xmin+size;i+=density*size/(2000*this.totalSize))
+			{
+				for(let j=ymin;j<ymin+size;j+=density*size/(2000*this.totalSize))
+				{
+					x=i
+					y=j
+					preva=x
+					a=x
+					prevb=y
+					b=y
+
+
+					for(let k=0;k<5;k++)
+					{
+						preva=a
+						prevb=b
+						a=preva*preva-prevb*prevb+x
+						b=2*preva*prevb+y
+					}
+					if((a*a+b*b)<4)
+					{
+						for(let k=0;k<this.iterations;k++)
+						{
+							preva=a
+							prevb=b
+							a=preva*preva-prevb*prevb+x
+							b=2*preva*prevb+y
+
+							if((a*a+b*b)>=4)
+							{
+								this.set[k].push( new Point(x,y) )
+								this.lengthh[k]=this.lengthh[k]+1
+								this.totalLength++
+								k=this.iterations;
+							}
+						}
+					}
+				}
+			}
+		}
+		else if(this.mode==6)
+		{
+			for(let i=xmin+size*(smoothnessStep)/smoothness;i<xmin+size*(smoothnessStep+1)/smoothness;i+=density*size/(2000*this.totalSize))
+			{
+				for(let j=ymin;j<ymin+size;j+=density*size/(2000*this.totalSize))
+				{
+					x=i
+					y=j
+					preva=x
+					a=x
+					prevb=y
+					b=y
+
+
+					for(let k=0;k<5;k++)
+					{
+						preva=a
+						prevb=b
+						a=preva*preva-prevb*prevb+x
+						b=2*preva*prevb+y
+					}
+					if((a*a+b*b)<4)
+					{
+						for(let k=0;k<this.iterations;k++)
+						{
+							preva=a
+							prevb=b
+							a=preva*preva-prevb*prevb+x
+							b=2*preva*prevb+y
+
+							if((a*a+b*b)>=4)
+							{
+								this.set[k].push( new Point(x,y) )
+								this.progressiveColorsSet[k].push(k)
 								this.lengthh[k]=this.lengthh[k]+1
 								this.totalLength++
 								k=this.iterations;
@@ -248,11 +336,35 @@ class MandlebrotSet
 		{
 			for(let j=0;j<this.lengthh[i];j++)
 			{
-				x=map(this.set[i][j].x,xmin,xmin+size,0,1000);
-				y=map(this.set[i][j].y,ymin,ymin+size,0,1000);
-				this.set[i][j].x=x;
-				this.set[i][j].y=y;
+				x=map(this.set[i][j].x,xmin,xmin+size,0,1000*this.totalSize);
+				y=map(this.set[i][j].y,ymin,ymin+size,0,1000*this.totalSize);
+				this.set[i][j].x=x+500-1000*this.totalSize/2;
+				this.set[i][j].y=y+500-1000*this.totalSize/2;
 			}
 		}
+	}
+
+	progressiveColorsCalculation()
+	{
+		let number;
+		let min=1000,max=0;
+		for(let i=0;i<this.iterations;i++)
+		{
+			for(let j=0;j<this.lengthh[i];j++)
+			{
+				number=log(this.set[i][j].x*this.set[i][j].x+this.set[i][j].y*this.set[i][j].y)/2
+				number=log(number/log(2))/log(2)
+				this.progressiveColorsSet[i][j]=number
+				if(number>max)
+				{
+					max=number
+				}
+				if(number<min)
+				{
+					min=number
+				}
+			}
+		}
+		print(min,max)
 	}
 }
